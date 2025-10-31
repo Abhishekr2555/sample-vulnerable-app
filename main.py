@@ -31,9 +31,11 @@ def run_shell(command):
     return subprocess.getoutput(command)
 
 def deserialize_blob(blob):
-    # SECURITY FIX: Replace insecure pickle.loads() with json.loads()
-    # This prevents arbitrary code execution from untrusted input
-    return json.loads(blob)
+    # Fixed: Use json.loads instead of pickle.loads for safer deserialization (Issue 5)
+    try:
+        return json.loads(blob)
+    except json.JSONDecodeError:
+        raise ValueError("Invalid JSON data")
 
 if __name__ == "__main__":
     # seed some data
