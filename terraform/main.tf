@@ -18,8 +18,8 @@ resource "aws_s3_bucket" "app_bucket" {
 }
 
 resource "aws_iam_policy" "app_policy" {
-  name        = "app-restricted-access"
-  description = "Policy used by instances with restricted permissions"
+  name        = "app-limited-access"  # Changed name to reflect the new limited access
+  description = "Policy used by instances with limited permissions"
 
   policy = jsonencode({
     Version = "2012-10-17"
