@@ -7,7 +7,7 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: sample-app-bucket-12345
-      # Removed AccessControl: PublicRead to address security finding
+      # Removed AccessControl: PublicRead to ensure the bucket is not publicly readable
       # Added cross-region replication configuration for improved data durability and availability
       ReplicationConfiguration:
         Role: !GetAtt ReplicationRole.Arn
