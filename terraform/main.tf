@@ -18,38 +18,43 @@ resource "aws_s3_bucket" "app_bucket" {
 }
 
 resource "aws_iam_policy" "app_policy" {
-  name        = "app-limited-access"  # Changed name to reflect the more limited access
+  name        = "app-limited-access"
   description = "Policy used by instances with limited permissions"
 
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:PutObject",
-        "s3:ListBucket"
-      ],
-      "Resource": [
-        "arn:aws:s3:::sample-app-terraform-bucket-12345",
-        "arn:aws:s3:::sample-app-terraform-bucket-12345/*"
-      ]
-    }
-  ]
-}
-EOF
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.app_bucket.arn,
+          "${aws_s3_bucket.app_bucket.arn}/*"
+        ]
+      }
+    ]
+  })
 }
 
 resource "aws_security_group" "restricted_sg" {
-  name        = "restricted-sg"  # Changed name to reflect the more restricted access
+  name        = "restricted-sg"
   description = "Security group with restricted access"
 
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/8"]  # Restrict to internal network, adjust as needed
+    cidr_blocks = ["10.0.0.0/8"]  # Restrict to internal network
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/8"]  # Restrict to internal network
   }
 }
