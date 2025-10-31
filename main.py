@@ -1,7 +1,7 @@
 # NOTE: contains intentional security test patterns for SAST/SCA/IaC scanning.
 import sqlite3
 import subprocess
-import pickle
+import json  # Changed from pickle to json
 import os
 
 # hardcoded API token (Issue 1)
@@ -31,8 +31,11 @@ def run_shell(command):
     return subprocess.getoutput(command)
 
 def deserialize_blob(blob):
-    # insecure deserialization of untrusted data (Issue 5)
-    return pickle.loads(blob)
+    # Fixed: Use json.loads instead of pickle.loads for safer deserialization
+    try:
+        return json.loads(blob)
+    except json.JSONDecodeError:
+        raise ValueError("Invalid JSON data")
 
 if __name__ == "__main__":
     # seed some data
@@ -45,6 +48,6 @@ if __name__ == "__main__":
     print(run_shell("echo Hello && whoami"))
     try:
         # attempting to deserialize an arbitrary blob (will likely raise)
-        deserialize_blob(b"not-a-valid-pickle")
+        deserialize_blob('{"key": "value"}')  # Changed to valid JSON string
     except Exception as e:
         print("Deserialization error:", e)
